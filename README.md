@@ -48,3 +48,6 @@ Possible returns:
 [x,y]: final location
 'Invalid input for initial location!': initX,initY weren't numbers and hence are invalid as an initial location
 'Invalid Movement Command!': movement command which wasn't F, B, L or R were entered in the control sequence
+
+Known Bugs:
+Doesn't deal with propel numbers over 9
