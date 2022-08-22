@@ -169,7 +169,15 @@ const testResults2 = [[0,2], [2,0], [0,0]];
 testFunction(mk1, testCommands, testResults);
 testFunction(mk2, testCommands2, testResults2);
 
-/*rl.question("Please insert a command: " , function (command) {
-  console.log(`Bot ends up at: ${mk1.recieveCommand(command)}`);
+rl.question("Please enter bot type followed by a space then the command (with no spaces): " , function (command) {
+    const split = command.split(" ");
+
+    if(split[0] === "mk1") {
+        console.log(`Bot ends up at: ${mk1.recieveCommand(split[1])}`);
+    } else if(split[0] === "mk2") {
+        console.log(`Bot ends up at: ${mk2.recieveCommand(split[1])}`);
+    } else {
+        console.log('Invalid bot type');
+    }
   rl.close();
-});*/
+});
