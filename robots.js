@@ -8,7 +8,7 @@ const rl = readline.createInterface({
 
   //WOULD BE MUCH BETTER IF THESE WERE SEPARATE FILES WITH A CONTROLLER 
 const mk1 = {
-    name: 'mk2',
+    name: 'mk1',
     location: [0,0],
     recieveCommand(command) {
         //command format: initX,initY,movements
