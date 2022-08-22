@@ -5,10 +5,13 @@ const rl = readline.createInterface({
     output: process.stdout,
   });
 
+
+  //WOULD BE MUCH BETTER IF THESE WERE SEPARATE FILES WITH A CONTROLLER 
 const mk1 = {
     name: 'mk2',
     location: [0,0],
     recieveCommand(command) {
+        //command format: initX,initY,movements
         const splitCommand = command.split(",");
         if(!(isNaN(splitCommand[0]) || isNaN(splitCommand[1]))) {
             this.location[0] = splitCommand[0];
@@ -60,6 +63,7 @@ const mk2 = {
     facing: 0,
     buildingSize: [0,0],
     recieveCommand(command) {
+        //command format: initX,initY,initFacing,buildingSizeX,buildingSizeY,commands
         const splitCommand = command.split(",");
         if(!(isNaN(splitCommand[0]) || isNaN(splitCommand[1]))) {
             this.location[0] = splitCommand[0];
@@ -77,7 +81,7 @@ const mk2 = {
             this.buildingSize[0] = splitCommand[3];
             this.buildingSize[1] = splitCommand[4];
         } else {
-            return 'Invalid input for initial location!';
+            return 'Invalid input for building size!';
         }
 
         for(let i = 0; i < splitCommand[5].length; i++) {
@@ -131,7 +135,114 @@ const mk2 = {
         }
     },
     left() {
-        this.facing = (this.facing - 1) % 4 
+        if(this.facing == 0) {
+            this.facing = 3;
+        } else {
+            this.facing = this.facing - 1;
+        }
+    },
+    right() {
+        this.facing = (this.facing + 1) % 4
+    }
+}
+
+const mk3 = {
+    name: 'mk3',
+    location: [0,0],
+    facing: 0,
+    fuelRemaining: 0,
+    recieveCommand(command) {
+        //command format: initX,initY,commands
+        const splitCommand = command.split(",");
+        this.fuelRemaining = 30;
+        if(!(isNaN(splitCommand[0]) || isNaN(splitCommand[1]))) {
+            this.location[0] = Number(splitCommand[0]);
+            this.location[1] = Number(splitCommand[1]);
+        } else {
+            return 'Invalid input for initial location!';
+        }
+
+        this.facing = 0;
+
+        let curCommand; 
+        for(let i = 0; i < splitCommand[2].length; i++) {
+            curCommand = splitCommand[2][i]
+            switch(curCommand) {
+                case "F":
+                    this.forward();
+                    break;
+                case "L":
+                    this.left();
+                    break;
+                case "R":
+                    this.right();
+                    break;
+                default:
+                    if(!isNaN(curCommand)) {
+                        //if it's a number
+                        let numPropel = Number(curCommand);
+                        if(numPropel < 6) {
+                            this.forward(numPropel);
+                        } else {
+                            console.log("Warning: Tried to send command that would've overheated bot");
+                            //input of two digits would fail so for now assuming < 10
+                            this.forward(5);
+                            this.forward(numPropel - 5);
+                        }
+                        //add one to i so that it skips the F
+                        i++;
+                    } else {
+                        console.log("invalid " + curCommand);
+                        return 'Invalid Movement Command!';
+                    }
+            }
+        } 
+
+        return this.location;
+    },
+    forward(num = 1) {
+        //num here default to one so it can be propelled 
+        if(this.fuelRemaining >= num) {
+            switch(compass[this.facing]) {
+                case 'N':
+                    this.location[1] += num;
+                    break;
+                case 'E':
+                    this.location[0] += num;
+                    break;
+                case 'S':
+                    this.location[1] -= num;
+                    break;
+                case 'W':
+                    this.location[0] -= num;
+                    break;
+            }
+            this.fuelRemaining -= num;
+        } else if(this.fuelRemaining > 0) {
+            //if it's trying to do a number of F higher than remaining fuel, use leftover fuel then return location
+            switch(compass[this.facing]) {
+                case 'N':
+                    this.location[1] += this.fuelRemaining;
+                    break;
+                case 'E':
+                    this.location[0] += this.fuelRemaining;
+                    break;
+                case 'S':
+                    this.location[1] -= this.fuelRemaining;
+                    break;
+                case 'W':
+                    this.location[0] -= this.fuelRemaining;
+                    break;
+            }
+            this.fuelRemaining = 0;
+        }
+    },
+    left() {
+        if(this.facing == 0) {
+            this.facing = 3;
+        } else {
+            this.facing = this.facing - 1;
+        }
     },
     right() {
         this.facing = (this.facing + 1) % 4
@@ -166,18 +277,25 @@ const testResults = [[-1, 21], [4, 19], [3,15], 'Invalid input for initial locat
 const testCommands2 = ["0,0,N,2,2,FFFF", "0,1,S,4,4,LFFRF", "1,5,S,6,6,RFFLFFFFFFF"];
 const testResults2 = [[0,2], [2,0], [0,0]];
 
+const testCommands3 = ["0,0,9FFFFFFFFFF4F3F2F9FFFFF", "0,0,FFFFFF3FLFFFFFFR5FL", "4,3,FFFFFFFF5FRFFFFFF3FRFFFFFFLFFFFF5FFF5FFFFFFFLFFFFF"];
+const testResults3 = [[0,30], [-6, 14], [15,10]];
+
 testFunction(mk1, testCommands, testResults);
 testFunction(mk2, testCommands2, testResults2);
+testFunction(mk3, testCommands3, testResults3);
 
-rl.question("Please enter bot type followed by a space then the command (with no spaces): " , function (command) {
-    const split = command.split(" ");
 
-    if(split[0] === "mk1") {
-        console.log(`Bot ends up at: ${mk1.recieveCommand(split[1])}`);
-    } else if(split[0] === "mk2") {
-        console.log(`Bot ends up at: ${mk2.recieveCommand(split[1])}`);
-    } else {
-        console.log('Invalid bot type');
-    }
-  rl.close();
-});
+rl.question('What is the bot type?: ' , function (botType) {
+    rl.question('Please enter the command: ' , function (command) {
+        if(botType === "mk1") {
+            console.log(`Bot ends up at: ${mk1.recieveCommand(command)}`);
+        } else if(botType === "mk2") {
+            console.log(`Bot ends up at: ${mk2.recieveCommand(command)}`);
+        } else if(botType === "mk3") {
+            console.log(`Bot ends up at: ${mk3.recieveCommand(command)}`);
+        } else {
+            console.log('Invalid bot type');
+        }
+      rl.close();
+    });
+  });

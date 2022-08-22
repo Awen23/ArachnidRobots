@@ -1,9 +1,10 @@
 # ArachnidRobots
 
+Run using 'node robots.js'
+Will first run tests to confirm all bots are working, then will ask for bot type, then ask for command
+
 # MK1
 Command is recieved via the console and is in the format: initX,initY,movements
-
-mk1.js is run using "node mk1.js" in the terminal, and will first run test cases before asking for a command input
 
 Possible returns:
 [x,y]: final location
@@ -25,3 +26,25 @@ initFacing: direction bot is initially facing of N,E,S,W (North, East, South, We
 buildingSizeX: length of glass (inclusive; the bot can safely go to (buildingSizeX, buildingSizeY))
 buildingSizeY: height of glass
 commands: string of characters F, L & R denoting the instructions to the bot
+
+Possible returns:
+[x,y]: final location
+'Invalid input for initial location!': initX,initY weren't numbers and hence are invalid as an initial location
+'Invalid initial direction facing!': initFacing wasn't N, E, S or W
+'Invalid input for building size!': buildingSizeX,buildingSizeY weren't numbers
+'Invalid Movement Command!': movement command which wasn't F, B, L or R were entered in the control sequence
+
+
+# MK3
+
+Assumptions:
+If a propel of more than 5 is given, the bot will split it past the 5 to avoid overheating and gives a warning
+Bot always starts facing North 
+If a command of more fuel is given, it will use remaining fuel only
+
+Command structure: initX,initY,commands
+
+Possible returns:
+[x,y]: final location
+'Invalid input for initial location!': initX,initY weren't numbers and hence are invalid as an initial location
+'Invalid Movement Command!': movement command which wasn't F, B, L or R were entered in the control sequence
